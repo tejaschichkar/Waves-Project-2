@@ -2,24 +2,27 @@ using UnityEngine;
 
 public class DoorOpen2 : MonoBehaviour
 {
-    // Reference to the door GameObject that will open
+    // Reference to the door GameObject that will open/close
     public GameObject doorToOpen;
 
-    // Speed of the door opening (optional, for smooth animations)
+    // Speed of the door opening/closing
     public float openSpeed = 2f;
 
-    // The target rotation for the door to simulate opening
-    private Quaternion targetRotation;
+    // The target rotations for the door (open and closed states)
+    private Quaternion openRotation;
+    private Quaternion closedRotation;
 
-    // Flag to track if the door is opening
+    // Flags to track if the door is opening or closing
     private bool isOpening = false;
+    private bool isClosing = false;
 
     void Start()
     {
-        // Set the target rotation (for example, 90 degrees around the Y axis)
+        // Initialize the door's open and closed rotations
         if (doorToOpen != null)
         {
-            targetRotation = Quaternion.Euler(0, -90, 0) * doorToOpen.transform.rotation;
+            closedRotation = doorToOpen.transform.rotation;
+            openRotation = Quaternion.Euler(0, -90, 0) * closedRotation;
         }
     }
 
@@ -30,14 +33,30 @@ public class DoorOpen2 : MonoBehaviour
         {
             doorToOpen.transform.rotation = Quaternion.Lerp(
                 doorToOpen.transform.rotation,
-                targetRotation,
+                openRotation,
                 Time.deltaTime * openSpeed
             );
 
-            // Stop the animation if the door has reached its target rotation
-            if (Quaternion.Angle(doorToOpen.transform.rotation, targetRotation) < 0.1f)
+            // Stop opening if the door has reached the open position
+            if (Quaternion.Angle(doorToOpen.transform.rotation, openRotation) < 0.1f)
             {
                 isOpening = false;
+            }
+        }
+
+        // Smoothly rotate the door if it is closing
+        if (isClosing && doorToOpen != null)
+        {
+            doorToOpen.transform.rotation = Quaternion.Lerp(
+                doorToOpen.transform.rotation,
+                closedRotation,
+                Time.deltaTime * openSpeed
+            );
+
+            // Stop closing if the door has reached the closed position
+            if (Quaternion.Angle(doorToOpen.transform.rotation, closedRotation) < 0.1f)
+            {
+                isClosing = false;
             }
         }
     }
@@ -48,6 +67,17 @@ public class DoorOpen2 : MonoBehaviour
         if (other.CompareTag("Player") && doorToOpen != null)
         {
             isOpening = true;
+            isClosing = false;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // Check if the player exited the trigger
+        if (other.CompareTag("Player") && doorToOpen != null)
+        {
+            isClosing = true;
+            isOpening = false;
         }
     }
 }
