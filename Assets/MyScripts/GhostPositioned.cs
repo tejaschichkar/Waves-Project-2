@@ -17,6 +17,9 @@ public class GhostPositioned : MonoBehaviour
     // The target position for the ghost
     private Transform targetPoint;
 
+    // Layer mask to detect the floor
+    public LayerMask floorLayer;
+
     void Update()
     {
         // Smoothly move the ghost to the target position if it should move
@@ -55,8 +58,29 @@ public class GhostPositioned : MonoBehaviour
             int randomIndex = Random.Range(0, targetPositions.Length);
             targetPoint = targetPositions[randomIndex];
 
+            // Adjust target position to align with the floor
+            Vector3 adjustedPosition = AdjustToFloor(targetPoint.position);
+            targetPoint.position = adjustedPosition;
+
             // Start moving the ghost
             shouldMove = true;
         }
+    }
+
+    Vector3 AdjustToFloor(Vector3 targetPosition)
+    {
+        // Cast a ray downward from the target position to find the floor
+        RaycastHit hit;
+        if (Physics.Raycast(targetPosition + Vector3.up, Vector3.down, out hit, Mathf.Infinity, floorLayer))
+        {
+            // Adjust the y-coordinate to the floor level
+            targetPosition.y = hit.point.y;
+        }
+        else
+        {
+            Debug.LogWarning("Floor not detected for target position. Ghost might remain in mid-air.");
+        }
+
+        return targetPosition;
     }
 }
