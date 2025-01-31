@@ -66,12 +66,12 @@ public class DoorSideOpen : MonoBehaviour
             if (playerPosition.x < doorPosition.x)
             {
                 // Player is on the left side, open to the right
-                targetRotation = rightOpenRotation;
+                targetRotation = leftOpenRotation;
             }
             else
             {
                 // Player is on the right side, open to the left
-                targetRotation = leftOpenRotation;
+                targetRotation = rightOpenRotation;
             }
 
             isOpening = true;

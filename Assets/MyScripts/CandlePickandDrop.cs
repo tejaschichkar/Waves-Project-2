@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // Include if you use UI elements like Text
+using UnityEngine.UI;
 
 public class CandlePickandDrop : MonoBehaviour
 {
@@ -12,15 +12,35 @@ public class CandlePickandDrop : MonoBehaviour
     // UI text for displaying the message
     public Text interactionText;
 
+    // UI text for displaying candles collected
+    public Text candlesCollectedText;
+
+    // Message displayed after collecting all candles
+    public string placeCandlesMessage = "Place all 6 candles in the ritual place to capture the ghost.";
+
     // Reference to the candle currently being interacted with
     private GameObject currentCandle;
 
+    // Ritual place reference
+    public GameObject ritualPlace;
+
+    // Parent object containing 6 candles to place
+    public GameObject ritualCandles;
+
+    // Track if the candles have been placed
+    private bool candlesPlaced = false;
+
     void Start()
     {
-        // Ensure the interactionText is hidden at the start
+        // Ensure the interactionText and candlesCollectedText are hidden at the start
         if (interactionText != null)
         {
             interactionText.enabled = false;
+        }
+
+        if (candlesCollectedText != null)
+        {
+            candlesCollectedText.enabled = false;
         }
     }
 
@@ -30,6 +50,12 @@ public class CandlePickandDrop : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && currentCandle != null)
         {
             PickUpCandle();
+        }
+
+        // Check for player input to place the candles at the ritual place
+        if (Input.GetKeyDown(KeyCode.P) && candlesPlaced == false && totalCandles == maxCandles && IsNearRitualPlace())
+        {
+            PlaceCandles();
         }
     }
 
@@ -52,6 +78,16 @@ public class CandlePickandDrop : MonoBehaviour
                 currentCandle = other.gameObject;
             }
         }
+
+        // Check if the player collides with the ritual place
+        if (other.gameObject == ritualPlace && totalCandles == maxCandles)
+        {
+            if (interactionText != null)
+            {
+                interactionText.text = "Press P to place the candles";
+                interactionText.enabled = true;
+            }
+        }
     }
 
     void OnTriggerExit(Collider other)
@@ -67,6 +103,15 @@ public class CandlePickandDrop : MonoBehaviour
             // Clear the current candle reference
             currentCandle = null;
         }
+
+        // When the player exits the ritual place's collider
+        if (other.gameObject == ritualPlace)
+        {
+            if (interactionText != null)
+            {
+                interactionText.enabled = false;
+            }
+        }
     }
 
     void PickUpCandle()
@@ -78,6 +123,19 @@ public class CandlePickandDrop : MonoBehaviour
         // Disable the candle or destroy it
         currentCandle.SetActive(false);
 
+        // Display candles collected text
+        if (candlesCollectedText != null)
+        {
+            candlesCollectedText.enabled = true;
+            candlesCollectedText.text = $"Candles Collected: {totalCandles}/{maxCandles}";
+
+            // Show the place candles message when all candles are collected
+            if (totalCandles == maxCandles)
+            {
+                candlesCollectedText.text = placeCandlesMessage;
+            }
+        }
+
         // Hide the interaction message
         if (interactionText != null)
         {
@@ -86,5 +144,33 @@ public class CandlePickandDrop : MonoBehaviour
 
         // Clear the current candle reference
         currentCandle = null;
+    }
+
+    void PlaceCandles()
+    {
+        // Activate the parent object containing the candles
+        if (ritualCandles != null)
+        {
+            ritualCandles.SetActive(true);
+        }
+
+        Debug.Log("Placed all candles at the ritual place.");
+
+        // Hide the candles collected text
+        if (candlesCollectedText != null)
+        {
+            candlesCollectedText.enabled = false;
+        }
+
+        // Mark candles as placed
+        candlesPlaced = true;
+
+        // Optionally, trigger further game logic here (e.g., capture the ghost).
+    }
+
+    bool IsNearRitualPlace()
+    {
+        // Check if the player is near the ritual place using a simple distance check
+        return Vector3.Distance(transform.position, ritualPlace.transform.position) < 2.0f;
     }
 }

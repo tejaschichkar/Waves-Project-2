@@ -23,7 +23,7 @@ public class GhostBehaviour : MonoBehaviour
         // Check if the NavMeshAgent exists
         if (navMeshAgent == null)
         {
-            Debug.LogError("NavMeshAgent component is missing on the Ghost.");
+            //Debug.LogError("NavMeshAgent component is missing on the Ghost.");
         }
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
@@ -36,14 +36,14 @@ public class GhostBehaviour : MonoBehaviour
     {
         if (player == null || navMeshAgent == null)
         {
-            Debug.LogWarning("Player or NavMeshAgent is not assigned.");
+            //Debug.LogWarning("Player or NavMeshAgent is not assigned.");
             return;
         }
 
         // Calculate the distance between the ghost and the player
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        Debug.Log("Distance to Player: " + distanceToPlayer);
+        //Debug.Log("Distance to Player: " + distanceToPlayer);
 
         // Start following the player if within detection radius
         if (distanceToPlayer <= detectionRadius)
@@ -61,7 +61,7 @@ public class GhostBehaviour : MonoBehaviour
         if (isChasing)
         {
             navMeshAgent.SetDestination(player.position);
-            Debug.Log("Setting destination to Player.");
+            //Debug.Log("Setting destination to Player.");
         }
         else
         {
