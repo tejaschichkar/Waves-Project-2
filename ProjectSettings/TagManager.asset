@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Candle
+  - Ghost
   layers:
   - Default
   - TransparentFX
