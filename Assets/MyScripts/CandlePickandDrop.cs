@@ -117,6 +117,7 @@ public class CandlePickandDrop : MonoBehaviour
         if (winScreen != null)
         {
             winScreen.SetActive(true);
+            FindObjectOfType<CharController_Motor>().EnableCursor();
             Time.timeScale = 0f; // Pause the game
         }
     }

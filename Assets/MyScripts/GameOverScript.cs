@@ -1,36 +1,27 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class GameOverScript : MonoBehaviour
 {
-    public GameObject gameOverPanel; // Assign in the Inspector
+    public GameObject gameOverPanel;
 
     void Start()
     {
         gameOverPanel.SetActive(false); // Hide game over screen initially
     }
 
-    void OnControllerColliderHit(ControllerColliderHit hit)
+    public void GameOver()
     {
-        if (hit.gameObject.CompareTag("Ghost")) // Make sure Ghost has the "Ghost" tag
-        {
-            Debug.Log("Game Over! Player caught by Ghost.");
-            GameOver();
-        }
-    }
-
-    void GameOver()
-    {
-        gameOverPanel.SetActive(true); // Show game over screen
-        Time.timeScale = 0f; // Pause the game
+        gameOverPanel.SetActive(true);
+        FindObjectOfType<CharController_Motor>().EnableCursor();
+        Time.timeScale = 0f; // Pause game
     }
 
     public void RestartGame()
     {
-        Time.timeScale = 1f; // Resume game time
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload level
-         gameOverPanel.SetActive(true);
+        Debug.Log("Restarting...");
+        Time.timeScale = 1f; // Ensure time resumes
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 
     public void QuitGame()

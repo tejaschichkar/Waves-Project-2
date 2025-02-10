@@ -1,79 +1,116 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class GhostBehaviour : MonoBehaviour
 {
-    // Reference to the player
     public Transform player;
-
-    // Detection radius for the ghost to start following the player
     public float detectionRadius = 10f;
-
-    // Reference to the NavMeshAgent component
+    public float killRadius = 1f; // Adjust based on ghost size
     private NavMeshAgent navMeshAgent;
-
-    // Flag to check if the ghost is following the player
     private bool isChasing = false;
+    private bool hasGameOverTriggered = false; // Prevent multiple GameOver calls
+    public GameManager gameManager; // ✅ Reference to GameManager
+    public LightManager lightManager; // Reference to LightManager
+    public float roamTime = 5f; // Time to roam before choosing a new destination
 
     void Start()
     {
-        // Get the NavMeshAgent component attached to the ghost
         navMeshAgent = GetComponent<NavMeshAgent>();
-
-        // Check if the NavMeshAgent exists
         if (navMeshAgent == null)
         {
-            //Debug.LogError("NavMeshAgent component is missing on the Ghost.");
+            Debug.LogError("NavMeshAgent component is missing on the Ghost.");
         }
+
+        // Snap ghost to closest NavMesh position if it's off-mesh
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
             transform.position = hit.position;
         }
+
+        StartCoroutine(RoamRandomly());
     }
 
     void Update()
     {
         if (player == null || navMeshAgent == null)
-        {
-            //Debug.LogWarning("Player or NavMeshAgent is not assigned.");
             return;
-        }
 
-        // Calculate the distance between the ghost and the player
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        //Debug.Log("Distance to Player: " + distanceToPlayer);
-
-        // Start following the player if within detection radius
         if (distanceToPlayer <= detectionRadius)
         {
             isChasing = true;
-            Debug.Log("Player detected. Ghost is chasing.");
         }
         else
         {
             isChasing = false;
-            Debug.Log("Player out of range. Ghost stopped.");
         }
 
-        // Update the ghost's movement based on isChasing
         if (isChasing)
         {
             navMeshAgent.SetDestination(player.position);
-            //Debug.Log("Setting destination to Player.");
         }
         else
         {
-            navMeshAgent.ResetPath(); // Stop moving
+            navMeshAgent.ResetPath();
+        }
+
+        // Only call GameOver once
+        if (distanceToPlayer <= killRadius && !hasGameOverTriggered)
+        {
+            hasGameOverTriggered = true; // Prevent multiple calls
+            Debug.Log("Player Caught! Game Over.");
+            gameManager.GameOver();
         }
     }
 
-    // Debug visualization in the Scene view
+    // Roaming logic
+    IEnumerator RoamRandomly()
+    {
+        while (true)
+        {
+            if (!isChasing) // Only roam when not chasing
+            {
+                // Find a random position within the NavMesh bounds
+                Vector3 randomDestination = GetRandomNavMeshPoint();
+
+                // Check if the random destination is near any active light
+                while (lightManager.IsPlayerSafe(randomDestination))
+                {
+                    randomDestination = GetRandomNavMeshPoint(); // If near light, pick another point
+                }
+
+                navMeshAgent.SetDestination(randomDestination); // Set the new destination
+            }
+
+            // Wait for the roam time before choosing a new destination
+            yield return new WaitForSeconds(roamTime);
+        }
+    }
+
+    // Get a random point within the NavMesh
+    Vector3 GetRandomNavMeshPoint()
+    {
+        Vector3 randomPoint = Random.insideUnitSphere * 10f; // Adjust range as necessary
+        randomPoint += transform.position; // Add the current position as the center
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(randomPoint, out hit, 10f, NavMesh.AllAreas)) // Adjust range as necessary
+        {
+            return hit.position;
+        }
+
+        return transform.position; // Return current position if no valid point found
+    }
+
     void OnDrawGizmosSelected()
     {
-        // Draw the detection radius in the Scene view
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, killRadius);
     }
 }
