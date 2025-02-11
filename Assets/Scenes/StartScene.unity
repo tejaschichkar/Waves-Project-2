@@ -481,7 +481,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Haunted Mansion
+  m_Text: Jadoo Ki Haweli
 --- !u!222 &579401738
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1473,12 +1473,12 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Objective:\nYour goal is to collect all 6 candles and place them at the
+  m_Text: "Objective:\nYour goal is to collect all 8 candles and place them at the
     ritual site before the ghost catches you.\n* It's not just horror and simple\n*
-    You have to use your mind to avoid the ghost and collect candles\n* You have
-    to find that 0.1% way  to solve and win\n!!! ALL THE BEST !!!\nControls:\nMove:
+    You have to think how to avoid the ghost and collect candles\n* If you are below
+    any of the light area ghost will not catch you\n!!! ALL THE BEST !!!\nControls:\nMove:
     W A S D\nLook Around: Mouse\nFlashLight : F\nInteract (Pick/Place Candles): E\nPlace
-    Candles at Ritual Site: P\n\nGame Rules:\n\u2714 Collect 6 candles hidden across
+    Candles at Ritual Site: P\n\nGame Rules:\n\u2714 Collect 8 candles hidden across
     the mansion.\n\u2714 Avoid the ghost\u2014if it catches you, Game Over!\n\u2714
     Once all candles are collected, go to the ritual site and place them.\n\u2714
     If you successfully place the candles before getting caught, you win!"

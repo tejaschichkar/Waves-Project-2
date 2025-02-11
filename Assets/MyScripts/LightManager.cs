@@ -6,7 +6,7 @@ public class LightManager : MonoBehaviour
 {
     public List<Transform> lightPoints; // Assign lights in Inspector
     public float lightDuration = 5f;    // Time each light stays ON
-    public int activeLightCount = 4;    // Number of active lights at a time (default to 3)
+    public int activeLightCount = 4;    // Number of active lights at a time
 
     private List<Transform> currentLights = new List<Transform>();  // Active lights
 
@@ -35,8 +35,7 @@ public class LightManager : MonoBehaviour
                 int randomIndex = Random.Range(0, lightPoints.Count);
                 Transform selectedLight = lightPoints[randomIndex];
 
-                // Ensure no duplicates (no same light selected twice)
-                if (!selectedLights.Contains(selectedLight))
+                if (!selectedLights.Contains(selectedLight)) // Avoid duplicates
                 {
                     selectedLights.Add(selectedLight);
                     selectedLight.gameObject.SetActive(true);  // Turn this light ON
@@ -46,13 +45,19 @@ public class LightManager : MonoBehaviour
             // Update the current lights list
             currentLights = new List<Transform>(selectedLights);
 
-            // Wait for the duration before switching
+            // Wait before switching
             yield return new WaitForSeconds(lightDuration);
         }
     }
 
-    // Check if the player is in a safe zone under one of the active lights
+    // Check if the player is safe (under any active light)
     public bool IsPlayerSafe(Vector3 playerPosition)
+    {
+        return IsPositionSafe(playerPosition);
+    }
+
+    // Check if ANY position (e.g., ghost's target) is inside a lighted area
+    public bool IsPositionSafe(Vector3 position)
     {
         if (currentLights.Count == 0) return false;
 
@@ -60,12 +65,12 @@ public class LightManager : MonoBehaviour
 
         foreach (Transform light in currentLights)
         {
-            if (Vector3.Distance(playerPosition, light.position) <= safeRadius)
+            if (Vector3.Distance(position, light.position) <= safeRadius)
             {
-                return true; // Player is safe if near any of the active lights
+                return true; // Position is within a light
             }
         }
 
-        return false; // Player is not safe
+        return false; // Position is in the dark
     }
 }
