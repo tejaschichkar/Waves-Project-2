@@ -1,85 +1,84 @@
 using UnityEngine;
 using UnityEngine.AI;
-using System.Collections;
 
 public class GhostBehaviour : MonoBehaviour
 {
     public Transform player;
-    public float detectionRadius = 10f; // Adjust as needed
-    public float killRadius = 1.5f; // Adjust based on ghost size
+    public float detectionRadius = 10f;
+    public float killRadius = 1f;
     private NavMeshAgent navMeshAgent;
-    private bool hasGameOverTriggered = false; // Prevent multiple GameOver calls
-    public GameManager gameManager; // Reference to GameManager
-    public LightManager lightManager; // Reference to LightManager
-    public float roamTime = 5f; // Time to roam before choosing a new destination
-    private bool isChasing = false; // Tracks if ghost is chasing
+    private bool isChasing = false;
+    private bool hasGameOverTriggered = false;
+    public GameManager gameManager;
+    // public LightManager lightManager; // Light mechanic removed
 
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+
         if (navMeshAgent == null)
         {
             Debug.LogError("NavMeshAgent component is missing on the Ghost.");
         }
 
-        StartCoroutine(RoamRandomly());
+        // Ensure the ghost starts on a valid NavMesh position
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
+        {
+            transform.position = hit.position;
+        }
     }
 
     void Update()
     {
         if (player == null || navMeshAgent == null)
-            return;
-
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        bool isPlayerSafe = lightManager.IsPlayerSafe(player.position);
-
-        // If player is in detection radius, start chasing
-        if (distanceToPlayer <= detectionRadius)
         {
-            isChasing = true;
+            return;
+        }
+
+        bool isPlayerDetected = DetectPlayer();
+        Debug.Log($"[Ghost] Detected: {isPlayerDetected} | Chasing: {isChasing}");
+
+        if (isPlayerDetected)
+        {
+            if (!isChasing)
+            {
+                isChasing = true;
+            }
             navMeshAgent.SetDestination(player.position);
         }
-        else
+        else if (isChasing)
         {
-            isChasing = false; // If player escapes, return to roaming
+            isChasing = false;
+            navMeshAgent.ResetPath(); // Ghost stops moving when player escapes
         }
 
-        // Only call GameOver if the player is inside kill radius and NOT in a lit area
-        if (!isPlayerSafe && distanceToPlayer <= killRadius && !hasGameOverTriggered)
+        // Check for game over condition
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        if (distanceToPlayer <= killRadius && !hasGameOverTriggered)
         {
             hasGameOverTriggered = true;
             Debug.Log("Player Caught! Game Over.");
             gameManager.GameOver();
         }
-    }
 
-    // Roaming logic (Ghost roams when not chasing)
-    IEnumerator RoamRandomly()
-    {
-        while (true)
+        if (!navMeshAgent.hasPath || navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete)
         {
-            if (!isChasing) // Only pick a new roam point if NOT chasing
-            {
-                Vector3 randomDestination = GetValidRoamPoint();
-                navMeshAgent.SetDestination(randomDestination);
-            }
-
-            yield return new WaitForSeconds(roamTime);
+            Debug.Log("[Ghost] No valid path or incomplete path!");
+        }
+        else
+        {
+            Debug.Log("[Ghost] Path is valid. Moving...");
         }
     }
 
-    // Get a random roam point that is NOT in a lit area
-    Vector3 GetValidRoamPoint()
+    // 🔍 Detection using direct distance check
+    bool DetectPlayer()
     {
-        Vector3 randomPoint;
-        NavMeshHit hit;
-
-        do
-        {
-            randomPoint = Random.insideUnitSphere * 10f + transform.position;
-        } while (!NavMesh.SamplePosition(randomPoint, out hit, 10f, NavMesh.AllAreas) || lightManager.IsPositionSafe(hit.position));
-
-        return hit.position;
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        bool detected = distanceToPlayer <= detectionRadius;
+        Debug.Log($"[Ghost] Player Detected? {detected} | Distance: {distanceToPlayer}");
+        return detected;
     }
 
     void OnDrawGizmosSelected()
