@@ -14,6 +14,7 @@ public class CandlePickandDrop : MonoBehaviour
     private GameObject currentCandle;
     public GameObject ritualPlace;
     public GameObject ritualCandles;
+    public GameManager gameManager;
 
     private bool candlesPlaced = false;
 
@@ -117,7 +118,7 @@ public class CandlePickandDrop : MonoBehaviour
         if (winScreen != null)
         {
             winScreen.SetActive(true);
-            FindObjectOfType<CharController_Motor>().EnableCursor();
+            gameManager.EnableCursor();
             Time.timeScale = 0f; // Pause the game
         }
     }

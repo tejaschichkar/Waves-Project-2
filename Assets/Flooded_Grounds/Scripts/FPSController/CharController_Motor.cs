@@ -8,6 +8,7 @@ public class CharController_Motor : MonoBehaviour
 
     private CharacterController character;
     public GameObject cam;
+    public GameManager gameManager;
 
     private float moveFB, moveLR;
     private float rotX, rotY;
@@ -21,7 +22,7 @@ public class CharController_Motor : MonoBehaviour
             sensitivity *= 1.5f;
         }
 
-        DisableCursor(); // Lock cursor at game start
+        gameManager.DisableCursor(); // Lock cursor at game start
     }
 
     void Update()
@@ -52,17 +53,4 @@ public class CharController_Motor : MonoBehaviour
         cam.transform.Rotate(-rotY * Time.deltaTime, 0, 0);
     }
 
-    // Call this when the game starts
-    public void DisableCursor()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
-
-    // Call this when the game ends (Game Over / Win)
-    public void EnableCursor()
-    {
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
 }

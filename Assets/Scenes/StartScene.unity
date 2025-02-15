@@ -815,7 +815,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &744537156
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1475,13 +1475,13 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: "Objective:\nYour goal is to collect all 8 candles and place them at the
     ritual site before the ghost catches you.\n* It's not just horror and simple\n*
-    You have to think how to avoid the ghost and collect candles\n* If you are below
-    any of the light area ghost will not catch you\n!!! ALL THE BEST !!!\nControls:\nMove:
-    W A S D\nLook Around: Mouse\nFlashLight : F\nInteract (Pick/Place Candles): E\nPlace
-    Candles at Ritual Site: P\n\nGame Rules:\n\u2714 Collect 8 candles hidden across
-    the mansion.\n\u2714 Avoid the ghost\u2014if it catches you, Game Over!\n\u2714
-    Once all candles are collected, go to the ritual site and place them.\n\u2714
-    If you successfully place the candles before getting caught, you win!"
+    You have to think how to avoid the ghost and collect candles\n* Keep ears on
+    sound\n!!! ALL THE BEST !!!\nControls:\nMove: W A S D\nLook Around: Mouse\nFlashLight
+    : F\nInteract (Pick/Place Candles): E\nPlace Candles at Ritual Site: P\nPause
+    Game : ESC\n\nGame Rules:\n\u2714 Collect 8 candles hidden across the mansion.\n\u2714
+    Avoid the ghost\u2014if it catches you, Game Over!\n\u2714 Once all candles are
+    collected, go to the ritual site and place them.\n\u2714 If you successfully
+    place the candles before getting caught, you win!"
 --- !u!222 &1754163701
 CanvasRenderer:
   m_ObjectHideFlags: 0

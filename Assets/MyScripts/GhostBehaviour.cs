@@ -10,7 +10,6 @@ public class GhostBehaviour : MonoBehaviour
     private bool isChasing = false;
     private bool hasGameOverTriggered = false;
     public GameManager gameManager;
-    // public LightManager lightManager; // Light mechanic removed
 
     void Start()
     {
@@ -18,23 +17,37 @@ public class GhostBehaviour : MonoBehaviour
 
         if (navMeshAgent == null)
         {
-            Debug.LogError("NavMeshAgent component is missing on the Ghost.");
+            Debug.LogError("[Ghost] NavMeshAgent component is missing.");
+            return;
         }
 
-        // Ensure the ghost starts on a valid NavMesh position
+        // Auto-assign player if not set in Inspector
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+            else
+                Debug.LogError("[Ghost] Player not found! Ensure player has 'Player' tag.");
+        }
+
+        // Ensure Ghost starts on NavMesh
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
             transform.position = hit.position;
+            navMeshAgent.Warp(hit.position);
+        }
+        else
+        {
+            Debug.LogError("[Ghost] Failed to place Ghost on NavMesh!");
         }
     }
 
     void Update()
     {
         if (player == null || navMeshAgent == null)
-        {
             return;
-        }
 
         bool isPlayerDetected = DetectPlayer();
         Debug.Log($"[Ghost] Detected: {isPlayerDetected} | Chasing: {isChasing}");
@@ -42,18 +55,25 @@ public class GhostBehaviour : MonoBehaviour
         if (isPlayerDetected)
         {
             if (!isChasing)
-            {
                 isChasing = true;
-            }
+
+            navMeshAgent.isStopped = false;
             navMeshAgent.SetDestination(player.position);
+
+            // Check if path is valid
+            if (navMeshAgent.pathStatus == NavMeshPathStatus.PathInvalid)
+            {
+                Debug.LogError("[Ghost] Invalid path! Can't reach player.");
+                return;
+            }
         }
         else if (isChasing)
         {
             isChasing = false;
-            navMeshAgent.ResetPath(); // Ghost stops moving when player escapes
+            navMeshAgent.ResetPath(); // Stop chasing
         }
 
-        // Check for game over condition
+        // Check for Game Over condition
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         if (distanceToPlayer <= killRadius && !hasGameOverTriggered)
         {
@@ -62,17 +82,11 @@ public class GhostBehaviour : MonoBehaviour
             gameManager.GameOver();
         }
 
-        if (!navMeshAgent.hasPath || navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete)
-        {
-            Debug.Log("[Ghost] No valid path or incomplete path!");
-        }
-        else
-        {
-            Debug.Log("[Ghost] Path is valid. Moving...");
-        }
+        // Debug NavMeshAgent movement
+        Debug.Log($"[Ghost] Speed: {navMeshAgent.velocity.magnitude} | Path Status: {navMeshAgent.pathStatus}");
     }
 
-    // 🔍 Detection using direct distance check
+    // Detect player using direct distance check
     bool DetectPlayer()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);

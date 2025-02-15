@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class GameOverScript : MonoBehaviour
 {
     public GameObject gameOverPanel;
+    public GameManager gameManager;
 
     void Start()
     {
@@ -13,7 +14,7 @@ public class GameOverScript : MonoBehaviour
     public void GameOver()
     {
         gameOverPanel.SetActive(true);
-        FindObjectOfType<CharController_Motor>().EnableCursor();
+        gameManager.EnableCursor();
         Time.timeScale = 0f; // Pause game
     }
 

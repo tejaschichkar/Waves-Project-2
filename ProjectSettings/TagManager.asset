@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Candle
   - Ghost
+  - Stairs
   layers:
   - Default
   - TransparentFX
